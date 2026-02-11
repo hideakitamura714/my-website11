@@ -498,7 +498,7 @@
             target.classList.add('active');
             window.scrollTo(0, 0);
         }
-
+    }
 
     // ================================
     // RFQ フォーム：前回入力保持（localStorage）
@@ -508,12 +508,14 @@
     function saveRfqFormData() {
         const form = document.getElementById("rfq-form");
         if (!form) return;
+
         const data = {};
         form.querySelectorAll("input, textarea").forEach(el => {
             if (!el.name) return;
             if (el.type === "checkbox" || el.type === "radio" || el.type === "submit" || el.type === "button") return;
             data[el.name] = el.value ?? "";
         });
+
         try {
             localStorage.setItem(RFQ_STORAGE_KEY, JSON.stringify(data));
         } catch (e) {
@@ -524,9 +526,11 @@
     function restoreRfqFormData() {
         const form = document.getElementById("rfq-form");
         if (!form) return;
+
         let raw = null;
         try { raw = localStorage.getItem(RFQ_STORAGE_KEY); } catch (_) {}
         if (!raw) return;
+
         let data = null;
         try { data = JSON.parse(raw); } catch (_) { return; }
         if (!data || typeof data !== "object") return;
@@ -550,11 +554,11 @@
         const keep = document.getElementById("keep-input");
 
         // 画面切替
-        successMsg?.classList.add("hidden");
-        form?.classList.remove("hidden");
+        if (successMsg) successMsg.classList.add("hidden");
+        if (form) form.classList.remove("hidden");
 
         // UIを送信前へ戻す
-        errorMsg?.classList.add("hidden");
+        if (errorMsg) errorMsg.classList.add("hidden");
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
@@ -564,14 +568,12 @@
         if (keep && keep.checked) {
             restoreRfqFormData();
         } else {
-            form?.reset();
+            if (form) form.reset();
             clearRfqFormData();
         }
 
         // （念のため）フォーム先頭へ
         try { form?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (_) {}
-    }
-
     }
 
     // ================================
@@ -590,7 +592,7 @@
             e.preventDefault();
 
             // UI初期化
-            errorMsg?.classList.add("hidden");
+            if (errorMsg) errorMsg.classList.add("hidden");
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.classList.add("opacity-70", "cursor-not-allowed");
@@ -616,13 +618,13 @@
                     saveRfqFormData();
 
                     form.classList.add("hidden");
-                    successMsg?.classList.remove("hidden");
+                    if (successMsg) successMsg.classList.remove("hidden");
                 } else {
                     let txt = "";
                     try { txt = await res.text(); } catch (_) {}
                     console.error("Worker response error:", res.status, txt);
 
-                    errorMsg?.classList.remove("hidden");
+                    if (errorMsg) errorMsg.classList.remove("hidden");
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
@@ -631,7 +633,7 @@
             } catch (err) {
                 console.error("Worker fetch exception:", err);
 
-                errorMsg?.classList.remove("hidden");
+                if (errorMsg) errorMsg.classList.remove("hidden");
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
