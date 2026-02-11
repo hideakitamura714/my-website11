@@ -588,6 +588,16 @@
         const errorMsg = document.getElementById("error-msg");
         const successMsg = document.getElementById("success-msg");
 
+        // ★追加：チェックボックスは必ずデフォルトOFF（ブラウザ復元対策）
+        const keep = document.getElementById("keep-input");
+        if (keep) keep.checked = false;
+
+        // ★追加：戻る/更新で bfcache 復元された場合もOFFに戻す
+        window.addEventListener("pageshow", () => {
+            const k = document.getElementById("keep-input");
+            if (k) k.checked = false;
+        });
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
@@ -616,6 +626,10 @@
                 if (res.ok) {
                     // 送信成功時のみ、前回入力として保存
                     saveRfqFormData();
+
+                    // ★追加：成功画面を出す直前に必ずデフォルトOFF
+                    const k = document.getElementById("keep-input");
+                    if (k) k.checked = false;
 
                     form.classList.add("hidden");
                     if (successMsg) successMsg.classList.remove("hidden");
